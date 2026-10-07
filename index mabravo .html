@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MaBravo">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Cpath d=%22M50 8C50 8 22 44 22 64a28 28 0 0 0 56 0C78 44 50 8 50 8z%22 fill=%22%23FF2A0D%22/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MaBravo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFFFF;--surface:#FFFFFF;--ink:#16213A;--muted:#7C8597;--line:#E6EAF2;
+    --water:#2F5BEA;--water-soft:#EAF0FE;--amber:#F07E1A;--amber-soft:#FEF0E3;--green:#1FA06A;--chart:#FF2A0D;--green-soft:#E5F6EE;--sky:#3FAEE6;
+    --ok:#7B5CE6;--ok-soft:#F1EDFD;--warn:#E5484D;--warn-soft:#FDECEC;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+
+
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);
+  font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:17px;line-height:1.45;-webkit-font-smoothing:antialiased}
+main{max-width:560px;margin:0 auto;padding:22px 18px calc(100px + env(safe-area-inset-bottom,0px))}
+h1,h2,.num{font-family:"Bricolage Grotesque","Atkinson Hyperlegible",system-ui,sans-serif}
+h1{font-size:1.9rem;line-height:1.1;margin:0 0 4px;font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.15rem;margin:28px 0 10px;font-weight:700}
+.sub{color:var(--muted);margin:0 0 18px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--water);outline-offset:2px}
+.hidden{display:none!important}
+
+/* Bevande */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.drink{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:104px}
+.drink:active{transform:scale(.98)}
+.drink b{font-size:1.02rem;line-height:1.2}
+.drink small{color:var(--muted);font-size:.86rem}
+.strength{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:auto}
+.strength i{display:block;height:100%;background:var(--amber);border-radius:3px}
+.water-btn{width:100%;margin-top:12px;background:var(--water-soft);border:1px solid transparent;border-radius:14px;padding:16px;text-align:left;display:flex;justify-content:space-between;align-items:center;color:var(--ink)}
+.water-btn b{color:var(--water)}
+.custom{margin-top:10px;width:100%;background:transparent;border:1.5px dashed var(--line);border-radius:14px;padding:14px;color:var(--muted)}
+
+/* Stato */
+.hero{display:grid;grid-template-columns:78px 1fr;gap:18px;align-items:stretch;margin-top:6px}
+.tank{position:relative;background:var(--surface);border:2px solid var(--line);border-radius:10px 10px 22px 22px;height:190px;overflow:hidden}
+.tank .fill{position:absolute;left:0;right:0;bottom:0;background:var(--amber);opacity:.85;transition:height .6s ease}
+.tank .fill.over{background:var(--warn)}
+.tank .limit{position:absolute;left:-2px;right:-2px;border-top:2px dashed var(--ink);opacity:.55}
+.tank .limit span{position:absolute;right:4px;top:-20px;font-size:.72rem;color:var(--muted);background:var(--surface);padding:0 3px;border-radius:3px}
+.reading .num{font-size:3.4rem;line-height:1;font-weight:700;letter-spacing:-.02em}
+.reading .unit{font-size:1rem;color:var(--muted);margin-left:4px}
+.verdict{font-size:1.15rem;font-weight:700;margin:10px 0 2px}
+.verdict.ok{color:var(--ok)}.verdict.warn{color:var(--warn)}
+.reading p{margin:2px 0;color:var(--muted)}
+.advice{margin-top:22px;border-radius:16px;padding:16px 16px 14px;background:var(--surface);border-left:5px solid var(--water)}
+.advice.stop{border-left-color:var(--warn)}
+.advice h3{margin:0 0 6px;font-size:1.08rem}
+.advice p{margin:6px 0}
+.advice .next{font-family:"Bricolage Grotesque",sans-serif;font-size:1.35rem;font-weight:700}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.88rem;background:var(--water-soft);color:var(--ink);margin-top:6px}
+.chart-wrap{background:var(--surface);border-radius:16px;padding:12px 8px 6px;border:1px solid var(--line)}
+.chart-wrap svg{display:block;width:100%;height:auto}
+.log{list-style:none;padding:0;margin:0}
+.log li{display:flex;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid var(--line)}
+.log .t{font-variant-numeric:tabular-nums;color:var(--muted);width:48px;flex:none}
+.log .n{flex:1}
+.log .n small{display:block;color:var(--muted);font-size:.84rem}
+.log .del{background:none;border:0;color:var(--muted);padding:8px;font-size:1.1rem;line-height:1}
+.dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--amber)}
+.dot.w{background:var(--water)}
+.empty{background:var(--surface);border-radius:16px;padding:22px;text-align:center;color:var(--muted);border:1px solid var(--line)}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:15px;font-weight:700;background:var(--ink);color:var(--bg);margin-top:14px}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.note{font-size:.86rem;color:var(--muted);margin-top:22px}
+
+/* Impostazioni */
+.field{margin-bottom:18px}
+.field label,.field .lbl{display:block;font-weight:700;margin-bottom:6px}
+.field .hint{font-size:.86rem;color:var(--muted);margin-top:5px}
+.field input{width:100%;font:inherit;font-size:1.1rem;padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{flex:1 1 0;min-width:0;padding:12px 8px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface)}
+.seg button[aria-pressed="true"]{border-color:var(--water);background:var(--water-soft);font-weight:700}
+.seg.col{flex-direction:column}
+.seg.col button{text-align:left;padding:13px 14px}
+.stepper{display:flex;align-items:center;gap:14px}
+.stepper button{width:48px;height:48px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-size:1.4rem}
+.stepper .num{font-size:1.8rem;font-weight:700;min-width:2ch;text-align:center}
+.saved{color:var(--ok);font-weight:700;text-align:center;margin-top:10px;min-height:1.4em}
+
+/* Sheet */
+.scrim{position:fixed;inset:0;background:rgba(8,14,20,.5);display:flex;align-items:flex-end;justify-content:center;z-index:30}
+.sheet{background:var(--bg);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px));max-height:90%;overflow:auto;animation:up .22s ease}
+@keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}.tank .fill{transition:none}}
+.sheet h2{margin-top:0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 10px}
+.tile .k{font-size:.82rem;color:var(--muted)}
+.tile .v{font-family:"Bricolage Grotesque",sans-serif;font-size:1.3rem;font-weight:700;line-height:1.15;margin-top:2px}
+.tile .s{font-size:.82rem;color:var(--muted);margin-top:2px}
+.opts{list-style:none;padding:0;margin:10px 0 0}
+.opts li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:.95rem}
+.opts li span:last-child{color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.drink{position:relative}
+.drink .rm{position:absolute;top:6px;right:6px;background:none;border:0;color:var(--muted);padding:6px;font-size:.95rem;line-height:1}
+.drink.new{border-style:dashed;align-items:flex-start;justify-content:center;color:var(--muted)}
+.row-btns{display:flex;gap:8px;margin-top:10px}
+.row-btns .btn{margin-top:0}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;text-align:left;display:flex;flex-direction:column}
+.chip b{font-size:.95rem}.chip small{color:var(--muted);font-size:.78rem}
+.chip[aria-pressed="true"]{border-color:var(--amber);background:var(--amber-soft)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}
+.cmp{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.cmp th,.cmp td{text-align:left;padding:8px 6px;border-top:1px solid var(--line);vertical-align:top}
+.cmp thead th{border-top:0;color:var(--muted);font-size:.85rem;font-weight:700}
+.cmp tbody th{font-weight:400;color:var(--muted);font-size:.9rem;width:28%}
+.cmp td{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:1.05rem}
+.cmp td small{display:block;font-family:"Atkinson Hyperlegible",sans-serif;font-weight:400;font-size:.8rem;color:var(--muted)}
+.muted{color:var(--muted)}
+.link{background:none;border:0;padding:0;color:var(--water);font-weight:700;text-decoration:underline}
+.h3{font-size:1rem;margin:22px 0 4px}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:12px;border-bottom:2px solid var(--line);margin-bottom:14px}
+.iconbtn{width:46px;height:46px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);display:grid;place-items:center;flex:none;color:var(--ink)}
+.iconbtn svg{width:24px;height:24px}
+#newSess{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.sname{text-align:center;min-width:0}
+.sname small{display:block;font-size:.75rem;color:var(--muted)}
+.sname span{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.status{margin:0 0 10px;color:var(--muted)}
+.status .num{font-size:1.6rem;font-weight:700;color:var(--ink)}
+.chartbox{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.chartScroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.chartScroll svg{display:block}
+.tlabel{position:absolute;left:8px;font-size:.75rem;font-weight:700;color:var(--ok);background:var(--surface);padding:1px 6px;border-radius:6px;z-index:2;pointer-events:none}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted);margin:8px 2px 0}
+.legend i{display:inline-block;width:9px;height:9px;margin-right:5px;vertical-align:middle}
+.lg-g{height:2px!important;width:14px!important;background:var(--muted);opacity:.6}
+.lg-d{background:var(--amber);transform:rotate(45deg);border-radius:2px}.lg-w{background:var(--water);border-radius:50% 50% 50% 0;transform:rotate(-45deg)}
+.circles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+.circ{background:none;border:0;padding:0;display:flex;flex-direction:column;align-items:center;gap:8px}
+.circ .ring{width:min(100%,104px);aspect-ratio:1;border-radius:50%;border:3px solid var(--ok);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;text-align:center}
+.circ .ring b{font-family:"Bricolage Grotesque",sans-serif;font-size:.95rem;line-height:1.1}
+.circ .ring small{font-size:.75rem;color:var(--muted);margin-top:3px}
+.circ .cap{font-size:.85rem;font-weight:700}
+.c-rec .ring{border-color:var(--green);background:var(--green-soft)}
+.c-stop .ring{border-color:var(--warn);background:var(--warn-soft)}
+.c-water .ring{border-color:var(--water);background:var(--water-soft)}
+.c-water .ring b{font-size:1.6rem}
+.c-add .ring{border-color:var(--amber);background:var(--amber-soft)}
+.c-add .ring b{font-size:2.2rem;line-height:1}
+.circ:active .ring{transform:scale(.96)}
+.sess{flex-wrap:wrap}
+.sess.on b{color:var(--water)}
+.sbtns{display:flex;gap:14px;width:100%;padding-left:2px}
+.danger{color:var(--warn)}
+.ren{width:100%;font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(--water);background:var(--surface);color:var(--ink)}
+
+.back{display:inline-flex;align-items:center;gap:4px;background:none;border:0;padding:6px 8px 6px 0;margin-bottom:6px;color:var(--water);font-weight:700}
+.back svg{width:22px;height:22px}
+.peakbox{margin:18px 0 4px;padding:18px;border-radius:16px;background:var(--surface);border:1.5px solid var(--ok);display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.peakbox.over{border-color:var(--warn)}
+.peakbox .k{color:var(--muted);font-size:.9rem}
+.peakbox .num{font-size:3rem;font-weight:700;line-height:1.1}
+.peakbox .unit{font-size:1rem;color:var(--muted)}
+input[type="time"]{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;display:block;text-align:left;min-height:52px}
+.timerow{display:flex;align-items:center;gap:14px}
+.timerow input{flex:1}
+
+.reclist{list-style:none;margin:6px 0 0;padding:0;border:1.5px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surface)}
+.reclist li+li{border-top:1px solid var(--line)}
+.reclist button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;background:none;border:0;font-size:1.05rem;text-align:left;font-variant-numeric:tabular-nums}
+.reclist button.top{background:var(--green-soft);box-shadow:inset 4px 0 0 var(--green);font-weight:700}
+.reclist button.over span:last-child{color:var(--warn)}
+
+#drinkGrid{grid-template-columns:repeat(3,1fr);gap:12px}
+#drinkGrid .drink{border-radius:50%;aspect-ratio:1;min-height:0;padding:10px;align-items:center;justify-content:center;text-align:center;gap:3px}
+#drinkGrid .drink b{font-size:.88rem;line-height:1.15}
+#drinkGrid .drink small{font-size:.72rem;line-height:1.2}
+#drinkGrid .strength{width:55%;margin-top:4px;flex:none}
+#drinkGrid .drink .rm{top:2px;right:2px;background:var(--bg);border:1px solid var(--line);border-radius:50%;width:28px;height:28px;padding:0;display:grid;place-items:center;font-size:.8rem}
+#drinkGrid .drink.new{border-style:dashed;align-items:center}
+
+.chartbox{display:flex}
+.yaxis{flex:none;background:var(--surface);border-right:1px solid var(--line)}
+.yaxis svg{display:block}
+.chartScroll{flex:1;min-width:0}
+.pt{cursor:pointer}
+
+.swatches{display:flex;flex-wrap:wrap;gap:10px}
+.sw{width:38px;height:38px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 1.5px var(--line);padding:0}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 3px var(--ink)}
+.btn.danger{color:var(--warn);border-color:var(--warn-soft)}
+.btn.danger.armed{background:var(--warn);color:#fff;border-color:var(--warn)}
+/* Nav */
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:20}
+nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+nav button{background:none;border:0;padding:10px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.8rem;color:var(--muted)}
+nav button svg{width:24px;height:24px}
+nav button[aria-current="page"]{color:var(--water);font-weight:700}
+</style>
+</head>
+<body>
+<main>
+  <!-- REGISTRO -->
+  <section id="v-registro">
+    <div class="topbar">
+      <button class="iconbtn" id="openHist" aria-label="Storico sessioni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/></svg></button>
+      <div class="sname"><small>Sessione</small><span id="sname"></span></div>
+      <button class="iconbtn" id="newSess" aria-label="Nuova sessione"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+    <div id="regBody"></div>
+  </section>
+
+  <!-- DRINK -->
+  <section id="v-drink" class="hidden">
+    <h1>I tuoi drink</h1>
+    <div class="grid" id="drinkGrid"></div>
+  </section>
+
+  <!-- IMPOSTAZIONI -->
+  <section id="v-impostazioni" class="hidden">
+    <h1>Impostazioni</h1>
+    <div class="field"><span class="lbl">Sesso</span>
+      <div class="seg" id="sexSeg"><button data-v="m">Uomo</button><button data-v="f">Donna</button></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label for="age">Età</label><input id="age" type="number" inputmode="numeric" min="18" max="100" placeholder="anni"></div>
+      <div class="field"><label for="weight">Peso</label><input id="weight" type="number" inputmode="decimal" min="35" max="250" placeholder="kg"></div>
+    </div>
+    <div class="field"><label for="height">Altezza</label><input id="height" type="number" inputmode="numeric" min="130" max="230" placeholder="cm"></div>
+    <div class="field"><label for="target">Tasso alcolemico (g/L)</label>
+      <div class="stepper"><button id="tMinus" aria-label="Meno">−</button><input id="target" type="text" inputmode="decimal" placeholder="0,50" style="text-align:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.5rem"><button id="tPlus" aria-label="Più">+</button></div>
+    </div>
+    <button class="btn" id="saveSettings">Salva</button>
+    <div class="saved" id="savedMsg"></div>
+
+    <h2>Dati</h2>
+    <button class="btn" id="exportAll">Esporta tutto</button>
+    <button class="btn ghost" id="importBtn">Importa backup</button>
+    <input type="file" id="importFile" accept=".json,application/json" hidden>
+    <div class="saved" id="dataMsg"></div>
+  </section>
+</main>
+
+<nav><div class="in">
+  <button data-tab="registro" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 3 4-7 5 5"/><path d="M3 21h18"/></svg>Registro</button>
+  <button data-tab="drink">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10l-1.2 8.5a3.8 3.8 0 0 1-7.6 0Z"/><path d="M12 15v6M8.5 21h7"/></svg>Drink</button>
+  <button data-tab="impostazioni">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>Impostazioni</button>
+</div></nav>
+
+<div id="sheetRoot"></div>
+
+<script>
+(function(){
+"use strict";
+const DENS=0.789, UA=12, BETA=0.15, LEGAL=0.5;
+const DEFAULTS=[
+  {id:"birra-s",name:"Birra piccola",ml:200,abv:5},
+  {id:"birra-330",name:"Birra 33 cl",ml:330,abv:5},
+  {id:"birra-m",name:"Birra media",ml:400,abv:5},
+  {id:"vino",name:"Calice di vino",ml:125,abv:12},
+  {id:"prosecco",name:"Prosecco",ml:125,abv:11},
+  {id:"spritz",name:"Spritz",ml:200,abv:8},
+  {id:"cocktail",name:"Cocktail",ml:200,abv:10},
+  {id:"amaro",name:"Amaro",ml:40,abv:30},
+  {id:"shot",name:"Shot",ml:40,abv:40},
+  {id:"analcolica",name:"Birra analcolica",ml:330,abv:0.5}
+];
+const grams=(ml,abv)=>ml*abv/100*DENS;
+
+// ---------- storage ----------
+function load(k,def){try{const v=localStorage.getItem(k);return v?JSON.parse(v):def}catch(e){return def}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+let settings=load("pp.settings",null);
+if(settings&&settings.target===undefined){settings.target=settings.limit!==undefined?settings.limit:0.5;save("pp.settings",settings)}
+function sessName(t){return new Date(t).toLocaleString("it-IT",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}
+let sessions=load("pp.sessions",null);
+if(!Array.isArray(sessions)||!sessions.length){const old=load("pp.log",[]);const c=old.length?old[0].t:Date.now();sessions=[{id:"s"+c,name:sessName(c),created:c,log:old}]}
+let cur=sessions.find(s=>s.id===load("pp.cur",null))||sessions[0];
+let log=cur.log;
+let custom=load("pp.custom",[]);
+let lastEmpty=load("pp.lastEmpty",false);
+const persistLog=()=>{cur.log=log;save("pp.sessions",sessions);save("pp.cur",cur.id)};
+let hiddenDefs=load("pp.hiddenDefs",[]);
+const isDef=id=>DEFAULTS.some(d=>d.id===id);
+const catalog=()=>custom.filter(c=>!isDef(c.id)).map(d=>({...d,custom:true}))
+  .concat(DEFAULTS.filter(d=>!hiddenDefs.includes(d.id)).map(d=>{const o=custom.find(c=>c.id===d.id);return o?{...d,...o,custom:true}:d}));
+
+// ---------- modello ----------
+function tbw(s){return s.sex==="f"?-2.097+0.1069*s.height+0.2466*s.weight:2.447-0.09516*s.age+0.1074*s.height+0.3362*s.weight}
+const ka=d=>d.empty?0.12:0.05;      // assorbimento al minuto (primo ordine): stomaco vuoto più veloce
+const bio=d=>d.empty?1:0.9;          // il cibo riduce la quota che arriva nel sangue
+const VMAX=0.16/60,KM=0.015;           // smaltimento (g/L al minuto), rallenta solo a tassi molto bassi
+function simulate(list){
+  const al=list.filter(d=>d.g>0);
+  if(!al.length||!settings)return null;
+  const k=0.8/tbw(settings);
+  const start=Math.min(...al.map(d=>d.t));
+  const gut=al.map(d=>({d,left:d.g*bio(d),f:1-Math.exp(-ka(d))}));
+  const lastAbs=Math.max(...al.map(d=>d.t+Math.log(100)/ka(d)*60000));
+  const pts=[];let bac=0;
+  for(let i=0;i<60*36;i++){
+    const t=start+i*60000;let add=0;
+    for(const o of gut){if(t>=o.d.t&&o.left>0){const a=o.left*o.f;o.left-=a;add+=a*k}}
+    bac+=add;bac=Math.max(0,bac-VMAX*bac/(KM+bac));
+    if(bac<0.003&&t>lastAbs)bac=0;
+    pts.push([t,bac]);
+    if(t>lastAbs&&bac<=0)break;
+  }
+  return {start,pts,end:pts[pts.length-1][0],lastAbs};
+}
+function bacAt(sim,t){if(!sim)return 0;const i=Math.floor((t-sim.start)/60000);if(i<0||i>=sim.pts.length)return 0;return sim.pts[i][1]}
+function peakFrom(sim,t){let p=0,pt=t;if(!sim)return{p,pt};for(const[x,y]of sim.pts){if(x>=t&&y>p){p=y;pt=x}if(x>sim.lastAbs)break}if(pt<t)pt=t;return{p,pt}}
+function firstBelow(sim,from,lim){if(!sim)return null;for(const[x,y]of sim.pts)if(x>=from&&y<=lim+1e-9)return x;return sim.end}
+function firstAbove(sim,from,lim){if(!sim)return null;for(const[x,y]of sim.pts)if(x>=from&&y>lim+1e-9)return x;return null}
+function planFor(tpl,now,upper){
+  for(let d=0;d<=720;d+=5){
+    const t=now+d*60000;
+    const s=simulate(log.concat([{name:tpl.name,g:tpl.g,t,empty:lastEmpty}]));
+    const p=peakFrom(s,now).p;
+    if(p<=upper+0.005)return{t,peak:p};
+  }
+  return null;
+}
+
+// ---------- formattazione ----------
+const fmtG=v=>v.toFixed(2).replace(".",",");
+const fmt1=v=>(Math.round(v*10)/10).toString().replace(".",",");
+const hhmm=t=>new Date(t).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+function dur(ms){const m=Math.max(0,Math.round(ms/60000));if(m<1)return"adesso";if(m<60)return"tra "+m+" min";const h=Math.floor(m/60),r=m%60;return"tra "+h+" h"+(r?" "+r:"")}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+// ---------- navigazione ----------
+const views={registro:"v-registro",drink:"v-drink",impostazioni:"v-impostazioni"};
+let current="registro";
+function go(tab){
+  current=tab;
+  for(const k in views)document.getElementById(views[k]).classList.toggle("hidden",k!==tab);
+  document.querySelectorAll("nav button").forEach(b=>{if(b.dataset.tab===tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
+  if(tab==="registro")renderReg();
+  if(tab==="drink")renderGrid();
+  if(tab==="impostazioni")fillSettings();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>go(b.dataset.tab)));
+
+// ---------- Drink ----------
+const COLORS=["#F07E1A","#E5484D","#D6409F","#7B5CE6","#2F5BEA","#3FAEE6","#1FA06A","#C9A227","#8D6E63","#16213A"];
+function renderGrid(){
+  const g=document.getElementById("drinkGrid");
+  g.innerHTML=`<button class="drink new" id="newDrink"><b>+ Crea drink</b><small>nome, ml, gradi e colore</small></button>`+
+  catalog().map(d=>{
+    const gr=grams(d.ml,d.abv),w=Math.min(100,gr/20*100),c=d.color||"";
+    return `<div class="drink${d.custom?" mine":""}" data-id="${esc(d.id)}" role="button" tabindex="0" ${c?`style="border-color:${c};background:${c}1A"`:""}><b>${esc(d.name)}</b><small>${d.ml} ml · ${fmt1(d.abv)}%</small><span class="strength"><i style="width:${w}%;${c?`background:${c}`:""}"></i></span></div>`;
+  }).join("");
+  document.getElementById("newDrink").addEventListener("click",()=>openEditor(null));
+  g.querySelectorAll(".drink[data-id]").forEach(b=>{
+    const open=()=>{const d=catalog().find(x=>x.id===b.dataset.id);if(!d)return;openEditor(d)};
+    b.addEventListener("click",open);
+    b.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}});
+  });
+}
+
+const root=document.getElementById("sheetRoot");
+function closeSheet(){root.innerHTML=""}
+function sheet(html){
+  root.innerHTML=`<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;
+  document.getElementById("scrim").addEventListener("click",e=>{if(e.target.id==="scrim")closeSheet()});
+  const c=document.getElementById("cancel");if(c)c.addEventListener("click",closeSheet);
+}
+function openEditor(d){
+  let color=d&&d.color||COLORS[0];
+  sheet(`<button class="back" id="back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>Indietro</button>
+    <h2>${d?"Modifica drink":"Nuovo drink"}</h2>
+    <div class="field"><label for="cName">Nome</label><input id="cName" type="text" placeholder="es. Negroni" value="${d?esc(d.name):""}"></div>
+    <div class="row2"><div class="field"><label for="cMl">Millilitri</label><input id="cMl" type="number" inputmode="numeric" placeholder="es. 150" value="${d?d.ml:""}"></div>
+    <div class="field"><label for="cAbv">Gradazione (%)</label><input id="cAbv" type="number" inputmode="decimal" placeholder="es. 20" value="${d?d.abv:""}"></div></div>
+    <div class="field"><span class="lbl">Colore</span><div class="swatches">${COLORS.map(c=>`<button class="sw" data-c="${c}" style="background:${c}" aria-label="Colore ${c}" aria-pressed="${c===color}"></button>`).join("")}</div></div>
+    <div class="saved" id="cErr" style="color:var(--warn)"></div>
+    <button class="btn" id="cSave">${d?"Salva modifiche":"Salva drink"}</button>
+    ${d?`<button class="btn ghost danger" id="cDel">Elimina drink</button>`:""}`);
+  document.getElementById("back").addEventListener("click",closeSheet);
+  root.querySelectorAll(".sw").forEach(b=>b.addEventListener("click",()=>{color=b.dataset.c;root.querySelectorAll(".sw").forEach(x=>x.setAttribute("aria-pressed",x===b))}));
+  const read=()=>{
+    const name=document.getElementById("cName").value.trim(),ml=parseFloat(document.getElementById("cMl").value),abv=parseFloat(String(document.getElementById("cAbv").value).replace(",","."));
+    const err=document.getElementById("cErr");
+    if(!name){err.textContent="Dai un nome al drink.";return null}
+    if(!(ml>0&&ml<=2000)){err.textContent="Inserisci i millilitri (fino a 2000).";return null}
+    if(!(abv>=0&&abv<=80)){err.textContent="Inserisci la gradazione (0–80%).";return null}
+    return{name,ml,abv,color};
+  };
+  document.getElementById("cSave").addEventListener("click",()=>{
+    const v=read();if(!v)return;
+    if(d){const o=custom.find(x=>x.id===d.id);if(o)Object.assign(o,v);else custom.push({id:d.id,...v})}else custom.unshift({id:"c"+Date.now(),...v});
+    save("pp.custom",custom);closeSheet();renderGrid();toast(d?"Drink modificato":"Drink salvato");
+  });
+  if(d){
+    document.getElementById("cDel").addEventListener("click",e=>{const btn=e.currentTarget;if(!btn.dataset.armed){btn.dataset.armed="1";btn.textContent="Tocca ancora per eliminare";btn.classList.add("armed");return}custom=custom.filter(x=>x.id!==d.id);save("pp.custom",custom);if(isDef(d.id)){hiddenDefs.push(d.id);save("pp.hiddenDefs",hiddenDefs)}closeSheet();renderGrid();toast("Drink eliminato")});
+  }
+}
+function openAdd(d){
+  if(!settings){sheet(`<h2>Prima completa le impostazioni</h2><p>Per stimare il tasso servono sesso, età, peso e altezza.</p><button class="btn" id="toSet">Vai alle impostazioni</button><button class="btn ghost" id="cancel">Annulla</button>`);
+    document.getElementById("toSet").addEventListener("click",()=>{closeSheet();go("impostazioni")});return}
+  const timeVal=new Date().toTimeString().slice(0,5);
+  let empty=lastEmpty;
+  sheet(`<h2>${esc(d.name)}</h2><p class="sub" style="margin:-4px 0 14px">${d.ml} ml · ${fmt1(d.abv)}%</p>
+    <div class="field"><span class="lbl">Hai mangiato?</span>
+      <div class="seg" id="emptySeg"><button data-v="1" aria-pressed="${empty}">Stomaco vuoto</button><button data-v="0" aria-pressed="${!empty}">Ho mangiato</button></div>
+      <p class="hint">A stomaco vuoto l'alcol sale più in fretta e più in alto.</p></div>
+    <div class="field"><label for="dTime">Quando l'hai iniziato</label><input id="dTime" type="time" value="${timeVal}"></div>
+    <button class="btn" id="confirmAdd">Aggiungi al registro</button><button class="btn ghost" id="cancel">Annulla</button>`);
+  root.querySelectorAll("#emptySeg button").forEach(b=>b.addEventListener("click",()=>{
+    empty=b.dataset.v==="1";root.querySelectorAll("#emptySeg button").forEach(x=>x.setAttribute("aria-pressed",x===b))}));
+  document.getElementById("confirmAdd").addEventListener("click",()=>{
+    const [h,m]=document.getElementById("dTime").value.split(":").map(Number);
+    let t=new Date();t.setHours(h,m,0,0);t=t.getTime();
+    if(t>Date.now()+60000)t-=86400000;
+    lastEmpty=empty;save("pp.lastEmpty",empty);
+    log.push({id:Date.now(),name:d.name,ml:d.ml,abv:d.abv,g:grams(d.ml,d.abv),empty,t});
+    log.sort((a,b)=>a.t-b.t);persistLog();closeSheet();go("registro");
+  });
+}
+let toastTimer;
+function toast(msg){
+  let el=document.getElementById("toast");
+  if(!el){el=document.createElement("div");el.id="toast";el.style.cssText="position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;z-index:40;font-weight:700;font-size:.95rem";document.body.appendChild(el)}
+  el.textContent=msg;el.style.display="block";clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.style.display="none",1800);
+}
+
+// ---------- Registro ----------
+function statsFor(list,now){
+  const sim=simulate(list);
+  const bac=bacAt(sim,now);
+  const {p,pt}=peakFrom(sim,now);
+  const peak=Math.max(p,bac);
+  let over05=null;
+  if(sim){if(bac>LEGAL)over05={from:null,to:firstBelow(sim,Math.max(now,pt),LEGAL)};
+    else{const a=firstAbove(sim,now,LEGAL);if(a)over05={from:a,to:firstBelow(sim,pt,LEGAL)}}}
+  return{sim,bac,peak,peakT:pt,over05,zero:sim&&sim.end>now?sim.end:null};
+}
+const cellPeak=(s,now)=>s.peak<=0?"0,00":fmtG(s.peak)+`<small>${s.peakT>now+60000?dur(s.peakT-now):"adesso"}</small>`;
+const cell05=(s,now)=>!s.over05?"mai sopra":s.over05.from===null?`sotto ${dur(s.over05.to-now)}<small>alle ${hhmm(s.over05.to)}</small>`:`sopra ${dur(s.over05.from-now)}<small>fino alle ${hhmm(s.over05.to)}</small>`;
+const cellZero=(s,now)=>s.zero?dur(s.zero-now)+`<small>alle ${hhmm(s.zero)}</small>`:"già a zero";
+const unitsOf=l=>l.filter(d=>d.g>0).reduce((s,d)=>s+d.g,0)/UA;
+
+function getRec(now){
+  const target=settings.target;
+  const cur=statsFor(log,now);
+  if(target<=0)return{stop:true,short:"Zero",title:"Obiettivo zero",text:"Hai impostato 0,0: niente altri drink. Se ti va qualcosa, un analcolico."};
+  if(cur.peak>target+0.005){const u=firstBelow(cur.sim,Math.max(now,cur.peakT),target);
+    return{stop:true,short:"Aspetta",when:"sotto alle "+hhmm(u),title:"Fermati per ora",text:`Sei sopra ${fmtG(target)} o ci stai arrivando. Torni sotto verso le ${hhmm(u)}.`}}
+  const opts=[];
+  for(const d of catalog()){if(d.abv<1)continue;const g=grams(d.ml,d.abv);
+    const p=planFor({name:d.name,g},now,target);if(p)opts.push({d,...p})}
+  if(!opts.length)return{stop:true,short:"Basta",title:"Nessun drink ci sta",text:`Ognuno ti porterebbe oltre ${fmtG(target)} anche aspettando.`};
+  const first=Math.min(...opts.map(o=>o.t));
+  const best=opts.filter(o=>o.t<=first+15*60000).sort((a,b)=>b.peak-a.peak)[0];
+  const rest=opts.filter(o=>o!==best).sort((a,b)=>a.t-b.t||b.peak-a.peak);
+  const no=catalog().filter(d=>d.abv>=1&&!opts.some(o=>o.d.id===d.id)).map(d=>{const g=grams(d.ml,d.abv);return{d,peak:statsFor(log.concat([{name:d.name,g,t:now,empty:lastEmpty}]),now).peak,over:true}}).sort((a,b)=>a.peak-b.peak);
+  return{stop:false,best,rest:rest.concat(no)};
+}
+
+function chart30(now,boxW){
+  const target=settings.target,H30=1800e3;
+  const alc=log.filter(d=>d.g>0).sort((a,b)=>a.t-b.t);
+  const sim=simulate(log);
+  let t0=alc.length?alc[0].t:Math.min(now,...log.map(d=>d.t));t0=Math.floor(t0/H30)*H30;
+  let t1=Math.max(sim?sim.end:0,now,t0+H30*4);t1=Math.ceil(t1/H30)*H30;
+  const AX=46,slots=Math.round((t1-t0)/H30),pl=18,pr=22,H=310,pt=26,pb=36;
+  const SL=Math.max(54,Math.floor((boxW-AX-pl-pr)/slots));
+  const W=pl+slots*SL+pr;
+  const curves=[];for(let k=1;k<=alc.length;k++)curves.push(simulate(alc.slice(0,k)));
+  const vals=sim?sim.pts.map(p=>p[1]):[0];
+  const ymax=Math.ceil(Math.max(0.6,target*1.2,Math.max(...vals)*1.15)*10)/10;
+  const x=t=>pl+(t-t0)/H30*SL,y=v=>H-pb-v/ymax*(H-pt-pb);
+  const path=s=>{let p="";for(let t=t0;t<=t1;t+=120000){p+=`${x(t).toFixed(1)},${y(bacAt(s,t)).toFixed(1)} `}return p};
+  // griglia e asse Y (fisso)
+  let grid="",yl="";
+  for(let v=0;v<=ymax+1e-9;v+=0.1){const Y=y(v);
+    grid+=`<line x1="0" x2="${W}" y1="${Y}" y2="${Y}" stroke="var(--line)" stroke-width="1"/>`;
+    yl+=`<text x="${AX-6}" y="${Y+4}" text-anchor="end" font-size="13" font-weight="700" fill="var(--muted)">${v.toFixed(1).replace(".",",")}</text>`}
+  let xl="";
+  for(let i=0;i<=slots;i++){const t=t0+i*H30,X=x(t);
+    xl+=`<line x1="${X}" x2="${X}" y1="${H-pb}" y2="${H-pb+4}" stroke="var(--muted)"/>`;
+    if(SL>=60||i%2===0)xl+=`<text x="${X}" y="${H-pb+22}" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--muted)">${hhmm(t)}</text>`}
+  const ghosts=curves.slice(0,-1).map(s=>`<polyline points="${path(s)}" fill="none" stroke="var(--muted)" stroke-width="2.4" opacity=".55"/>`).join("");
+  const main=sim?`<polyline points="${path(sim)}" fill="none" stroke="var(--chart)" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>`:"";
+  let dots="";
+  for(let i=0;i<=slots;i++){const t=t0+i*H30,v=bacAt(sim,t),X=x(t),Y=y(v),fut=t>now;
+    dots+=`<circle cx="${X}" cy="${Y}" r="6" fill="${fut?"var(--surface)":"var(--chart)"}" stroke="var(--chart)" stroke-width="3"/>`;if(v>0.005)dots+=`<text x="${X}" y="${Y-13}" text-anchor="middle" font-size="13" font-weight="800" fill="var(--ink)">${fmtG(v)}</text>`}
+  const marks=log.map(d=>d.water?`<circle cx="${x(d.t)}" cy="${H-pb-7}" r="5" fill="var(--water)"/>`:"").join("");
+  const tLine=target>0?`<line x1="0" x2="${W}" y1="${y(target)}" y2="${y(target)}" stroke="var(--ok)" stroke-width="2.5" stroke-dasharray="9 6"/>`:"";
+  const nowX=x(Math.min(now,t1));
+  const svg=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Tasso alcolemico stimato ogni mezz'ora">
+    ${grid}${tLine}
+    <line x1="0" x2="${W}" y1="${H-pb}" y2="${H-pb}" stroke="var(--muted)" stroke-width="2"/>
+    <line x1="${nowX}" x2="${nowX}" y1="${pt-6}" y2="${H-pb}" stroke="var(--water)" stroke-width="2" opacity=".8"/>
+    ${xl}${ghosts}${main}${marks}${dots}
+  </svg>`;
+  const axis=`<svg width="${AX}" height="${H}" viewBox="0 0 ${AX} ${H}" aria-hidden="true">${yl}</svg>`;
+  return{svg,axis,nowX,W};
+}
+
+function renderReg(){
+  document.getElementById("sname").textContent=cur.name;
+  const body=document.getElementById("regBody");
+  if(!settings){body.innerHTML=`<div class="empty"><p>Completa le impostazioni per usare l'app.</p><button class="btn" id="toSet2">Apri impostazioni</button></div>`;
+    document.getElementById("toSet2").addEventListener("click",()=>go("impostazioni"));return}
+  const now=Date.now(),st=statsFor(log,now);
+  const alc=log.filter(d=>d.g>0),water=log.filter(d=>d.water);
+  const ch=chart30(now,(body.clientWidth||340)-2),rec=getRec(now);
+  const recLabel=rec.stop?`<b>${rec.short}</b>${rec.when?`<small>${rec.when}</small>`:""}`
+    :`<b>${esc(rec.best.d.name)}</b><small>${rec.best.t>now+60000?dur(rec.best.t-now):"adesso"}</small>`;
+  body.innerHTML=`
+    <p class="status"><span class="num">${fmtG(st.bac)}</span> g/L adesso${st.peakT>now+60000?` · picco ${fmtG(st.peak)} alle ${hhmm(st.peakT)}`:""}${st.zero?` · zero alle ${hhmm(st.zero)}`:""}</p>
+    <div class="chartbox"><div class="yaxis">${ch.axis}</div><div class="chartScroll" id="cs">${ch.svg}</div></div>
+    <div class="circles">
+      <button class="circ ${rec.stop?"c-stop":"c-rec"}" id="cRec"><span class="ring">${recLabel}</span><span class="cap">Consigliato</span></button>
+      <button class="circ c-water" id="cWater"><span class="ring"><b>${water.length}</b><small>su ${alc.length} drink</small></span><span class="cap">+ Acqua</span></button>
+      <button class="circ c-add" id="cAdd"><span class="ring"><b>+</b><small>registra</small></span><span class="cap">Ho bevuto</span></button>
+    </div>
+    ${log.length?`<h2>In questa sessione · ${fmt1(unitsOf(log))} unità</h2><ul class="log">${log.slice().reverse().map(d=>`<li><span class="dot ${d.water?"w":""}"></span><span class="t">${hhmm(d.t)}</span>
+      <span class="n">${esc(d.name)}${d.water?"":`<small>${d.ml} ml · ${fmt1(d.abv)}% · ${d.empty?"stomaco vuoto":"dopo aver mangiato"}</small>`}</span>
+      <button class="del" data-id="${d.id}" aria-label="Rimuovi ${esc(d.name)}">✕</button></li>`).join("")}</ul>`:""}
+`;
+  const cs=document.getElementById("cs");if(ch.W>cs.clientWidth)cs.scrollLeft=Math.max(0,Math.min(ch.nowX-cs.clientWidth*0.5,ch.W-cs.clientWidth));
+  document.getElementById("cRec").addEventListener("click",()=>openRec(rec,now));
+  document.getElementById("cWater").addEventListener("click",()=>{log.push({id:Date.now(),name:"Acqua",water:true,g:0,t:Date.now()});persistLog();toast("Acqua registrata");renderReg()});
+  document.getElementById("cAdd").addEventListener("click",()=>openRegister(null,null));
+  body.querySelectorAll(".del").forEach(b=>b.addEventListener("click",()=>{log=log.filter(d=>String(d.id)!==b.dataset.id);persistLog();renderReg()}));
+}
+
+function openRec(rec,now){
+  const back=`<button class="back" id="back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>Indietro</button>`;
+  if(rec.stop){sheet(`${back}<h2>${rec.title}</h2><p>${rec.text}</p>`);document.getElementById("back").addEventListener("click",closeSheet);return}
+  const all=[rec.best].concat(rec.rest);
+  sheet(`${back}<ul class="reclist">${all.map((o,i)=>`<li><button class="${i===0?"top":""}${o.over?" over":""}" data-id="${esc(o.d.id)}"><span>${esc(o.d.name)}</span><span>${fmtG(o.peak)}</span></button></li>`).join("")}</ul>`);
+  document.getElementById("back").addEventListener("click",closeSheet);
+  root.querySelectorAll(".reclist button").forEach(b=>b.addEventListener("click",()=>openRegister(b.dataset.id)));
+}
+
+function openRegister(preId){
+  if(!settings){go("impostazioni");return}
+  const back=`<button class="back" id="back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>Indietro</button>`;
+  const step1=()=>{
+    sheet(`${back}<h2>Cosa bevi?</h2>
+      <div class="chips">${catalog().map(d=>`<button class="chip" data-id="${esc(d.id)}" ${d.color?`style="border-color:${d.color};background:${d.color}14"`:""}><b>${esc(d.name)}</b><small>${d.ml} ml · ${fmt1(d.abv)}%</small></button>`).join("")}</div>`);
+    document.getElementById("back").addEventListener("click",closeSheet);
+    root.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>step2(b.dataset.id,true)));
+  };
+  let selT=null;
+  const toT=v=>{const[hh,mm]=v.split(":").map(Number);const d=new Date();d.setHours(hh,mm,0,0);let t=d.getTime();const n=Date.now();if(t-n>12*3600e3)t-=86400000;if(n-t>12*3600e3)t+=86400000;return t};
+  const step2=(id,fromList)=>{
+    const sel=catalog().find(d=>d.id===id);if(!sel){step1();return}
+    const g=grams(sel.ml,sel.abv);
+    const peakHTML=()=>{
+      const now=Date.now(),t=selT||now;
+      const s=statsFor(log.concat([{name:sel.name,g,t,empty:lastEmpty}]),now);
+      const over=settings.target>0?s.peak>settings.target+0.005:g>0;
+      return{over,html:`<span class="k">Picco che raggiungi</span><span class="num">${fmtG(s.peak)}<span class="unit"> g/L</span></span>
+        <span class="k">${s.peakT>now+60000?dur(s.peakT-now)+" · alle "+hhmm(s.peakT):"adesso"}</span>`};
+    };
+    const p=peakHTML();
+    sheet(`${back}<h2>${esc(sel.name)}</h2><p class="sub" style="margin:-4px 0 16px">${sel.ml} ml · ${fmt1(sel.abv)}%</p>
+      <div class="seg" id="emptySeg"><button data-v="1" aria-pressed="${lastEmpty}">Stomaco vuoto</button><button data-v="0" aria-pressed="${!lastEmpty}">Ho mangiato</button></div>
+      <div class="field" style="margin:14px 0 0"><label for="selTime">Ora</label>
+        <div class="timerow"><input id="selTime" type="time" value="${new Date(selT||Date.now()).toTimeString().slice(0,5)}"><button class="link" id="nowT">Adesso</button></div></div>
+      <div class="peakbox ${p.over?"over":""}" id="peakbox">${p.html}</div>
+      <button class="btn" id="confirmAdd">Aggiungi</button>`);
+    const refresh=()=>{const q=peakHTML(),pb=document.getElementById("peakbox");pb.innerHTML=q.html;pb.classList.toggle("over",q.over)};
+    document.getElementById("back").addEventListener("click",()=>fromList?step1():closeSheet());
+    root.querySelectorAll("#emptySeg button").forEach(b=>b.addEventListener("click",()=>{
+      lastEmpty=b.dataset.v==="1";save("pp.lastEmpty",lastEmpty);
+      root.querySelectorAll("#emptySeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));refresh()}));
+    const ti=document.getElementById("selTime");
+    const onTime=()=>{if(ti.value){selT=toT(ti.value);refresh()}};
+    ti.addEventListener("input",onTime);ti.addEventListener("change",onTime);
+    document.getElementById("nowT").addEventListener("click",()=>{selT=null;ti.value=new Date().toTimeString().slice(0,5);refresh()});
+    document.getElementById("confirmAdd").addEventListener("click",()=>{
+      if(ti.value)selT=toT(ti.value);
+      log.push({id:Date.now(),name:sel.name,ml:sel.ml,abv:sel.abv,g,empty:lastEmpty,t:selT||Date.now()});
+      log.sort((a,b)=>a.t-b.t);persistLog();closeSheet();toast("Aggiunto");go("registro")});
+  };
+  if(preId)step2(preId,false);else step1();
+}
+
+// ---------- Sessioni ----------
+document.getElementById("newSess").addEventListener("click",()=>{
+  if(!log.length){toast("Questa sessione è ancora vuota");return}
+  persistLog();const old=cur.name;const c=Date.now();
+  cur={id:"s"+c,name:sessName(c),created:c,log:[]};sessions.unshift(cur);log=cur.log;persistLog();
+  toast("Salvata: "+old);renderReg();
+});
+document.getElementById("openHist").addEventListener("click",openHist);
+function openHist(){
+  const items=sessions.map(s=>{const sim=simulate(s.log);const pk=sim?Math.max(...sim.pts.map(p=>p[1])):0;const n=s.log.filter(d=>d.g>0).length;
+    return`<li class="sess ${s.id===cur.id?"on":""}"><div class="n"><b class="sn" data-id="${s.id}">${esc(s.name)}</b><small>${n} drink · ${fmt1(unitsOf(s.log))} unità · picco ${fmtG(pk)}${s.id===cur.id?" · in corso":""}</small></div>
+      <div class="sbtns">${s.id!==cur.id?`<button class="link" data-open="${s.id}">Apri</button>`:""}<button class="link" data-ren="${s.id}">Rinomina</button>${s.id!==cur.id?`<button class="link danger" data-delx="${s.id}">Elimina</button>`:""}</div></li>`}).join("");
+  sheet(`<h2>Storico sessioni</h2><ul class="log">${items}</ul><button class="btn ghost" id="cancel">Chiudi</button>`);
+  root.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{persistLog();cur=sessions.find(s=>s.id===b.dataset.open);log=cur.log;persistLog();closeSheet();go("registro")}));
+  root.querySelectorAll("[data-delx]").forEach(b=>b.addEventListener("click",()=>{if(!b.dataset.armed){b.dataset.armed="1";b.textContent="Conferma eliminazione";return}sessions=sessions.filter(s=>s.id!==b.dataset.delx);persistLog();openHist()}));
+  root.querySelectorAll("[data-ren]").forEach(b=>b.addEventListener("click",()=>{
+    const s=sessions.find(x=>x.id===b.dataset.ren);const el=root.querySelector(`.sn[data-id="${s.id}"]`);
+    el.outerHTML=`<input class="ren" id="ren" value="${esc(s.name)}" maxlength="60">`;const inp=document.getElementById("ren");inp.focus();inp.select();
+    const done=()=>{const v=inp.value.trim();if(v)s.name=v;persistLog();openHist();if(current==="registro")document.getElementById("sname").textContent=cur.name};
+    inp.addEventListener("keydown",e=>{if(e.key==="Enter")done()});inp.addEventListener("blur",done);
+  }));
+}
+
+// ---------- Impostazioni ----------
+let draft={};
+function defaultMax(sex,age){return sex==="f"||(age||0)>65?1:2}
+function fillSettings(){
+  draft=settings?{...settings}:{sex:null,age:"",weight:"",height:"",target:0.5};
+  document.getElementById("age").value=draft.age||"";
+  document.getElementById("weight").value=draft.weight||"";
+  document.getElementById("height").value=draft.height||"";
+  document.getElementById("target").value=fmtG(draft.target);
+  syncSeg();document.getElementById("savedMsg").textContent="";
+}
+function syncSeg(){
+  document.querySelectorAll("#sexSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===draft.sex));
+}
+document.querySelectorAll("#sexSeg button").forEach(b=>b.addEventListener("click",()=>{
+  draft.sex=b.dataset.v;syncSeg()}));
+const readT=()=>parseFloat(String(document.getElementById("target").value).replace(",","."));
+const stepT=d=>{let v=readT();if(isNaN(v))v=0.5;v=Math.round((v+d)*100)/100;v=Math.min(1,Math.max(0,v));document.getElementById("target").value=fmtG(v)};
+document.getElementById("tMinus").addEventListener("click",()=>stepT(-0.05));
+document.getElementById("tPlus").addEventListener("click",()=>stepT(0.05));
+document.getElementById("saveSettings").addEventListener("click",()=>{
+  const age=parseInt(document.getElementById("age").value),weight=parseFloat(document.getElementById("weight").value),height=parseFloat(document.getElementById("height").value);
+  const msg=document.getElementById("savedMsg");msg.style.color="var(--warn)";
+  if(!draft.sex){msg.textContent="Scegli il sesso.";return}
+  if(!(age>=18&&age<=100)){msg.textContent="Inserisci un'età tra 18 e 100.";return}
+  if(!(weight>=35&&weight<=250)){msg.textContent="Inserisci un peso tra 35 e 250 kg.";return}
+  if(!(height>=130&&height<=230)){msg.textContent="Inserisci un'altezza tra 130 e 230 cm.";return}
+  const tv=readT();
+  if(isNaN(tv)||tv<0||tv>1){msg.textContent="Inserisci un picco tra 0 e 1,0 g/L.";return}
+  draft.target=Math.round(tv*100)/100;
+  settings={sex:draft.sex,age,weight,height,target:draft.target};
+  save("pp.settings",settings);msg.style.color="var(--ok)";msg.textContent="Salvato";
+});
+
+
+// ---------- Dati: salvataggio persistente, esporta, importa ----------
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
+function backupData(){persistLog();return{app:"MaBravo",version:1,exportedAt:new Date().toISOString(),settings,sessions,currentSession:cur.id,customDrinks:custom,hiddenDefaults:hiddenDefs,lastEmpty}}
+function dataMsg(t,ok){const m=document.getElementById("dataMsg");m.style.color=ok?"var(--ok)":"var(--warn)";m.textContent=t}
+document.getElementById("exportAll").addEventListener("click",async()=>{
+  const d=new Date(),name=`mabravo-backup-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}.json`;
+  const text=JSON.stringify(backupData(),null,2);
+  // 1. dentro Claude: capability downloads
+  if(window.claude&&typeof window.claude.use==="function"){
+    try{const dl=await window.claude.use("downloads");
+      if(dl){try{await dl.save({filename:name,data:text});dataMsg("Backup esportato",true)}
+        catch(e){dataMsg(e&&e.code==="declined"?"Esportazione annullata":"Esportazione non riuscita",false)}return}}catch(e){}
+  }
+  // 2. iPhone / browser: menu Condividi → Salva su File
+  const blob=new Blob([text],{type:"application/json"});
+  try{const file=new File([blob],name,{type:"application/json"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Backup MaBravo"});dataMsg("Backup esportato",true);return}}
+  catch(e){if(e&&e.name==="AbortError"){dataMsg("Esportazione annullata",false);return}}
+  // 3. download classico
+  try{const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);dataMsg("Backup scaricato",true)}
+  catch(e){dataMsg("Esportazione non disponibile qui",false)}
+});
+document.getElementById("importBtn").addEventListener("click",()=>document.getElementById("importFile").click());
+document.getElementById("importFile").addEventListener("change",async e=>{
+  const f=e.target.files&&e.target.files[0];e.target.value="";if(!f)return;
+  try{
+    const d=JSON.parse(await f.text());
+    if(!d||d.app!=="MaBravo"||!Array.isArray(d.sessions)||!d.sessions.length)throw new Error("formato");
+    sessions=d.sessions.filter(s=>s&&s.id&&Array.isArray(s.log));
+    if(!sessions.length)throw new Error("vuoto");
+    cur=sessions.find(s=>s.id===d.currentSession)||sessions[0];log=cur.log;
+    custom=Array.isArray(d.customDrinks)?d.customDrinks:[];hiddenDefs=Array.isArray(d.hiddenDefaults)?d.hiddenDefaults:[];
+    if(d.settings&&d.settings.sex){settings=d.settings;save("pp.settings",settings)}
+    lastEmpty=!!d.lastEmpty;save("pp.lastEmpty",lastEmpty);
+    save("pp.custom",custom);save("pp.hiddenDefs",hiddenDefs);persistLog();
+    fillSettings();renderGrid();dataMsg(`Backup importato: ${sessions.length} sessioni`,true);
+  }catch(err){dataMsg("File non valido: scegli un backup di MaBravo",false)}
+});
+
+// ---------- avvio ----------
+if(!settings)go("impostazioni");else go("registro");
+setInterval(()=>{if(current==="registro"&&!root.innerHTML&&!(document.activeElement&&document.activeElement.tagName==="INPUT"))renderReg()},30000);
+})();
+</script>
+</body>
+</html>
